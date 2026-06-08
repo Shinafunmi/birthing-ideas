@@ -56,7 +56,9 @@ const SignIn = () => {
      </form>
       <Link to="/">sign in </Link>
         <Link to="/home">Go to Home </Link>
+        <Link to="/signup">sign up </Link>
         <Link to="/notification">notify me</Link>
+
     </div>
   ); 
 }

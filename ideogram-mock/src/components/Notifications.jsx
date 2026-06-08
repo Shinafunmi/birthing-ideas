@@ -3,7 +3,7 @@ import React from 'react'
 const Notifications = () => {
   return (
     <div>
-        <p>Notifications, beep beep beep....</p>
+        <p className='bg-red-500'>Notifications, beep beep beep....</p>
     </div>
   );
 }
