@@ -9,6 +9,7 @@ import Connections from './pages/Connections'
 import Discover from './pages/Discover'
 import Profile from './pages/Profile'
 import CreatePost from './pages/CreatePost'
+import { Toaster } from 'react-hot-toast'
 import Layout from './pages/Layout'
 import Loading from './components/Loading'
 
@@ -21,6 +22,8 @@ const App = () => {
     }
 
   return (
+    <>
+    < Toaster />
       <Routes>
         <Route path="/" element={ user ? <Layout /> : <Login /> }>
           <Route index element={<Feed />} />
@@ -33,6 +36,7 @@ const App = () => {
           <Route path='create-post' element={<CreatePost />} />
         </Route>
       </Routes>
+    </>
   )
 }
 
