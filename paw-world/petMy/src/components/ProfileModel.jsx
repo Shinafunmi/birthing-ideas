@@ -48,7 +48,7 @@ const ProfileModel = ({setShowEdit}) => {
                              </div>
                         </label>
                     </div>
-                    <div className="">
+                    <div>
                         <label className='block text-sm font-medium text-gray-700 mb-1'>
                             Name
                         </label>
@@ -57,7 +57,7 @@ const ProfileModel = ({setShowEdit}) => {
 
                     <div>
                         <label className='block text-sm font-medium text-gray-700 mb-1'> Username 
-                             <input type="text" placeholder='Enter username ' className='w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2' value={editForm.username} onChange={(e) => setEditForm({...editForm, username: e.target.value})} />
+                             <input type="text" placeholder='Enter Username ' className='w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2' value={editForm.username} onChange={(e) => setEditForm({...editForm, username: e.target.value})} />
                         </label>
                     </div>
 
