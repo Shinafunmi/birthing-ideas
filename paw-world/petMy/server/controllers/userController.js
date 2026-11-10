@@ -151,7 +151,7 @@ export const followUser = async (req, res) => {
         user.following.push(id);
         await user.save()
 
-        const toUser = await User.findByid(id)
+        const toUser = await User.findById(id)
         toUser.followers.push(userId)
         await toUser.save()
 
@@ -166,28 +166,47 @@ export const followUser = async (req, res) => {
 
 //unfollow User
 
+
 export const unfollowUser = async (req, res) => {
     try {
-        const { userId } = req.auth()
+        const { userId } = req.auth();
         const { id } = req.body;
 
-        const user = await User.findById(userId)
+        // Find the current user
+        const user = await User.findById(userId);
 
-       user.following = user.following.filter(user => user !== id);
-       await user.save()
+        // Remove the target user from following
+        user.following = user.following.filter(
+            user => user !== id
+        );
 
-       const toUser = await User.findById(id)
-       toUser.followers = user.followers.filter(user=> user !== id);
-       await toUser.save()
+        await user.save();
 
-        res.json({success: true, message: 'You are no longer following this user'})
+        // Find the user being unfollowed
+        const toUser = await User.findById(id);
+
+        // Remove the current user from followers
+        toUser.followers = toUser.followers.filter(
+            user => user !== userId
+        );
+
+        await toUser.save();
+
+        res.json({
+            success: true,
+            message: 'You are no longer following this user'
+        });
 
     } catch (error) {
         console.log(error);
-        res.json({success: false, message: error.message})
-        
+
+        res.json({
+            success: false,
+            message: error.message
+        });
     }
-} 
+};
+ 
 
 export const sendFriendRequest = async (req, res) => {
     try {
@@ -278,3 +297,104 @@ export const sendFriendRequest = async (req, res) => {
         });
     }
 };
+
+// get users connection
+
+export const getUsersConnections = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+
+        const user = await User.findById(userId)
+            .populate('friends', 'username full_name profile_picture');
+
+        if (!user) {
+            return res.json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const connections = await Connection.find({
+            $or: [
+                { from: userId },
+                { to: userId }
+            ]
+        }).populate('from to', 'username full_name profile_picture');
+
+        const followers = await User.find({
+            following: userId
+        }).select('username full_name profile_picture');
+
+        const following = await User.find({
+            followers: userId
+        }).select('username full_name profile_picture');
+
+        const pendingConnections = await Connection.find({
+            to: userId,
+            status: 'pending'
+        }).populate('from', 'username full_name profile_picture');
+
+        res.json({
+            success: true,
+            connections,
+            followers,
+            following,
+            pendingConnections: pendingConnections.map(conn => conn.from)
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        return res.json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// accept connection request
+
+export const acceptConnectionRequest = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+        const { id } = req.body;
+
+        const connection = await Connection.findOne({
+            from: id,
+            to: userId,
+            status: 'pending'
+        });
+
+        if (!connection) {
+            return res.json({
+                success: false,
+                message: 'No pending connection request found'
+            });
+        }
+
+        // Update the connection status to accepted
+        connection.status = 'accepted';
+        await connection.save();
+
+        // Add each user to the other's friends list
+        const user = await User.findById(userId);
+        const friend = await User.findById(id);
+
+        if (user && friend) {
+            user.friends.push(friend._id);
+            friend.friends.push(user._id);
+            await user.save();
+            await friend.save();
+        }
+
+        connection.status = 'accepted';
+        await connection.save();
+
+        res.json({ success: true, message: 'Connection request accepted' });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+

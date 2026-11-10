@@ -53,7 +53,6 @@ const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
         </div>
     </div>
     
-    
   )
 }
 

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import { useUser, useAuth } from '@clerk/clerk-react'
 import Login from './pages/Login'
 import Feed from './pages/Feed'
 import Messages from './pages/Messages'
@@ -15,6 +15,14 @@ import Loading from './components/Loading'
 
 const App = () => {
   const { user, isLoaded } = useUser()
+  const { getToken } = useAuth()
+
+  useEffect(()=>{
+    if(user) {
+      getToken().then((token)=>console.log(token)
+      );
+    }
+  },[user])
   
   if (!isLoaded) {
     return <div> <Loading /> </div>
